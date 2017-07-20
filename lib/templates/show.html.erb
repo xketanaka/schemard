@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="<%= locale.lang %>">
+<head>
+<meta charset="utf-8"/>
+<link href="../normalize.css" rel="stylesheet" media="all">
+<style type="text/css">
+body { font-size: small; }
+header {
+  padding: 10px 0;
+  border-bottom: solid 2px #87cefa;
+  background-color: #004680;
+  color: #ffffff;
+}
+header a { color: #ffffff; cursor: pointer;  }
+header .title {
+  width: 90%;
+  margin: 0 auto;
+  font-size: large;
+}
+header .title #img {
+  background-image: url(../favicon.ico);
+  background-size: contain;
+  display: inline-block;
+  width: 30px;
+}
+header .title span { padding: 5px; }
+section { width: 90%; margin: 0 auto; }
+section > h3 {
+  color: #004680;
+  font-weight: normal;
+  border-bottom: solid 2px #d3d3d3;
+  margin: 12px 0;
+  font-size: 1.5em;
+}
+th { font-weight: normal; }
+table.no-grid th {
+  text-align: right;
+  vertical-align: top;
+  color: #004680;
+}
+table.no-grid td { padding: 2px 15px; }
+pre { font-family: sans-serif; font-size: medium; }
+table.grid { width: 100%; }
+table.grid th, table.grid td { padding: 2px 10px; border: solid 1px #d3d3d3; }
+table.grid th {
+  text-align: left;
+  color: #ffffff;
+  background-color: #004680;
+}
+div.wrap { margin-bottom: 30px; }
+</style>
+<link rel="shortcut icon" href="../favicon.ico">
+<%-
+  table = schema.table(table_name)
+-%>
+<title>ERD [<%= table.display_name %>]</title>
+<script type="text/javascript" src="../jquery2.min.js" ></script>
+<script type="text/javascript" src="../tableViewer.js" ></script>
+</head>
+<body>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="title">
+        <span><a data-link-url="/" ><i id="img" >&nbsp;</i>ERD</a></span>
+        <span>▶</span>
+        <span><%= table.display_name %><% if table_name != table.display_name %>（<%= table_name %>）<% end %></span>
+      </div>
+    </header>
+
+    <section>
+      <h3><%= locale.t("views.table_summary_title") %></h3>
+      <table class="no-grid">
+        <tbody>
+          <tr>
+            <th> <%= locale.t("views.table_name") %> </th><td> <%= table.display_name %> </td>
+          </tr>
+          <%- if locale.lang != "en" %>
+          <tr>
+            <th> <%= locale.t("views.table_name_en") %> </th><td> <%= table.name %> </td>
+          </tr>
+          <%- end -%>
+          <tr>
+            <th> <%= locale.t("views.parent_tables") %> </th>
+            <td> <%= table.belongs_to_tables.map do |t|
+                       "<a data-link-url='#{t.name}' >#{t.display_name}</a>"
+                     end.join(", ") -%> </td>
+          </tr>
+          <tr>
+            <th> <%= locale.t("views.child_tables") %> </th>
+            <td> <%= table.has_many_tables.map do |t|
+                       "<a data-link-url='#{t.name}' >#{t.display_name}</a>"
+                     end.join(", ") -%> </td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h3><%= locale.t("views.description") %></h3>
+      <pre><%= table.comment %></pre>
+    </section>
+
+    <section>
+      <h3><%= locale.t("views.column_definition") %></h3>
+      <table class="grid">
+        <tbody>
+          <tr>
+            <th> <%= locale.t("views.column_name") %> </th>
+            <%- if locale.lang != "en" %>
+            <th> <%= locale.t("views.column_name_en") %> </th>
+            <%- end -%>
+            <th> <%= locale.t("views.column_type") %> </th>
+            <th> <%= locale.t("views.column_precision") %> </th>
+            <th> NULL </th>
+            <th> <%= locale.t("views.column_default") %> </th>
+            <th> <%= locale.t("views.description") %> </th>
+          </tr>
+          <%- table.columns.each do |col| -%>
+          <tr>
+            <td> <%= col.display_name %> </td>
+            <%- if locale.lang != "en" %>
+            <td> <%= col.name %></td>
+            <%- end -%>
+            <td> <%= col.type %></td>
+            <td> <%= col.type == "decimal" ? "#{col.precision},#{col.scale}" : col.limit %> </td>
+            <td> <%= col.null || "false" %> </td>
+            <td> <%= col.default || "NULL" %> </td>
+            <td> <%= col.comment %> </td>
+          </tr>
+          <%- end -%>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h3><%= locale.t("views.index_definition") %></h3>
+      <table class="grid">
+        <tbody>
+          <tr>
+            <th> <%= locale.t("views.index_unique") %> </th>
+            <th> <%= locale.t("views.index_target_columns") %> </th>
+            <th> <%= locale.t("views.index_name") %> </th>
+          </tr>
+      <%- table.indexes.each do |idx| -%>
+          <tr>
+            <td> <%= idx.unique %> </td>
+            <td> <%= idx.columns.map {|c| col = table.columns.find{|col| col.name == c }; col && col.display_name }.join(", ") %> </td>
+            <td> <%= idx.name %> </td>
+          </tr>
+      <%- end -%>
+    </section>
+
+  </div><!-- wrap -->
+</body>
+</html>
