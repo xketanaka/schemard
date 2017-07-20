@@ -1,0 +1,10 @@
+.bundle
+.cache
+.DS_Store
+.sass-cache
+.ruby-version
+*.metadata
+Gemfile.lock
+build/
+vendor/
+db/
