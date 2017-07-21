@@ -5,7 +5,7 @@ module SchemaRD::Utils
   class Localizer
     attr_reader :lang
     def initialize(lang)
-      @lang = lang
+      @lang = self.dictionary && self.dictionary.has_key?(lang) ? lang : "en"
     end
     def translate(key)
       key.split(".").inject(self.dictionary[lang]) do |dict, k|
