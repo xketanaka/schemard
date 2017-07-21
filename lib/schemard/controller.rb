@@ -102,7 +102,7 @@ module SchemaRD
         opt = OptionParser.new
         opt.on('-i VAL', '--input-file=VAL') {|v| hash[:input_file] = v }
         opt.on('-o VAL', '--output-file=VAL') {|v| hash[:output_file] = v }
-        opt.on('-f VAL', '-m VAL', '--metadata-file=VAL') {|v| p v; hash[:metadata_files] << v }
+        opt.on('-f VAL', '-m VAL', '--metadata-file=VAL') {|v| hash[:metadata_files] << v }
         opt.on('--[no-]rdoc') {|v| hash[:rdoc_enabled] = v }
         opt.on('--[no-]db-comment') {|v| hash[:db_comment_enabled] = v }
         opt.on('-s', '--silent', '--no-log-output') {|v| hash[:log_output] = File.open(File::NULL, 'w') }
