@@ -82,13 +82,13 @@ div.wrap { margin-bottom: 30px; }
           <%- end -%>
           <tr>
             <th> <%= locale.t("views.parent_tables") %> </th>
-            <td> <%= table.belongs_to_tables.map do |t|
+            <td> <%= table.relations_as_child(schema).map(&:parent_table).map do |t|
                        "<a data-link-url='#{t.name}' >#{t.display_name}</a>"
                      end.join(", ") -%> </td>
           </tr>
           <tr>
             <th> <%= locale.t("views.child_tables") %> </th>
-            <td> <%= table.has_many_tables.map do |t|
+            <td> <%= table.relations_as_parent.map(&:child_table).map do |t|
                        "<a data-link-url='#{t.name}' >#{t.display_name}</a>"
                      end.join(", ") -%> </td>
           </tr>
