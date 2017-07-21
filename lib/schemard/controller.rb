@@ -4,6 +4,7 @@ require_relative "schema"
 require_relative "schema_parser"
 require_relative "metadata"
 require_relative "utils/localizer"
+require_relative "utils/struct_assigner"
 
 module SchemaRD
   class Controller
@@ -78,11 +79,11 @@ module SchemaRD
     end
   end
 
+  CONFIG_FILE = ".schamard.config"
   DEFAULT_CONFIG = {
     input_file: "db/schema.rb",
     output_file: "schema.metadata",
     metadata_files: [],
-    config_file: nil,
     rdoc_enabled: false,
     db_comment_enabled: false,
     log_output: STDOUT,
@@ -91,15 +92,17 @@ module SchemaRD
   }
 
   class Configuration < Struct.new(*DEFAULT_CONFIG.keys)
+    include SchemaRD::Utils::StructAssigner
     attr_reader :errors
     def initialize(argv = nil)
       hash = {}.merge(DEFAULT_CONFIG)
+      hash.merge(YAML.load_file(CONFIG_FILE)) if File.readable?(CONFIG_FILE)
+
       unless argv.nil?
         opt = OptionParser.new
         opt.on('-i VAL', '--input-file=VAL') {|v| hash[:input_file] = v }
         opt.on('-o VAL', '--output-file=VAL') {|v| hash[:output_file] = v }
-        opt.on('-f VAL', '--metadata-file=VAL') {|v| hash[:metadata_files] << v }
-        opt.on('-c VAL', '--config-file=VAL') {|v| hash[:config_file] = v }
+        opt.on('-f VAL', '-m VAL', '--metadata-file=VAL') {|v| p v; hash[:metadata_files] << v }
         opt.on('--[no-]rdoc') {|v| hash[:rdoc_enabled] = v }
         opt.on('--[no-]db-comment') {|v| hash[:db_comment_enabled] = v }
         opt.on('-s', '--silent', '--no-log-output') {|v| hash[:log_output] = File.open(File::NULL, 'w') }
@@ -108,36 +111,15 @@ module SchemaRD
         opt.on('-l VAL', '--log-output=VAL') {|v| hash[:log_output] = self.class.str_to_io(v) }
         opt.parse(argv)
       end
-      self.apply(hash)
-      validate!()
-      # output-file, metadata-file に記述された configuration を load
-      if self.errors.empty?
-        validate!()
-      end
-    end
-    def apply(hash)
-      return if hash.nil?
-      self.members.each do |key|
-        value = hash[key] || hash[key.to_sym]
-        self[key] = value if value
-      end
+      self.assign(hash)
     end
 
-    private
-
-    def validate!
+    def valid?
       @errors = []
-      if self.config_file
-        if File.readable?(self.config_file)
-          self.apply(YAML.load_file(self.config_file)[:config])
-        else
-          self.errors << "ConfigFile: \"#{self.config_file}\" is not readable!"
-        end
-      end
       unless File.readable?(self.input_file)
         self.errors << "InputFile: \"#{self.input_file}\" is not readable!"
       end
-      unless File.writable?(self.output_file)
+      unless (File.writable?(self.output_file) || File.writable?(File.dirname(self.output_file)))
         self.errors << "OutputFile: \"#{self.output_file}\" is not writable!"
       end
       self.metadata_files.each do |metadata_file|
@@ -153,6 +135,8 @@ module SchemaRD
       end
       self.errors.empty?
     end
+
+    private
 
     def self.str_to_io(str)
       case str
