@@ -2,8 +2,8 @@
 
 ## 概要
 
-SchemaRD は、Ruby On Rails で使われる schema.rb ファイルに定義されたスキーマ情報をER図として参照するためのツールです。  
-生成したER図はWebブラウザで閲覧、およびレイアウト調整することができます。
+SchemaRD は、Railsアプリケーションで利用する schema.rb を元にER図を生成するツールです。  
+生成されたER図は、Webブラウザで閲覧およびレイアウト調整することができます。
 
 ## 使い方
 
@@ -17,7 +17,7 @@ SchemaRD は、Ruby On Rails で使われる schema.rb ファイルに定義さ�
  $ schemard -i <path/to/schema.rb>
 ```
 
-Webブラウザで `http://localhost:10080` にアクセスすると生成されたER図を参照できます。
+Webブラウザで`http://localhost:10080`にアクセスすると生成されたER図を参照できます。
 
 ## ER図の編集
 
@@ -37,13 +37,11 @@ ER図にリレーションを追加するには、別途リレーション情報
  $ cd <Rails.root.dir>
  $ schemard gen-relation > db/relation.metadata
 ```
-
 1. 抽出したリレーション情報を読み込ませるには以下のようにオプションを指定して実行します。
 ```
  $ schemard -i <path/to/schema.rb> -f db/relation.metadata
 ```
-
-1. Webブラウザで `http://localhost:10080` にアクセスするとER図にリレーションが追加されています。
+1. Webブラウザで`http://localhost:10080`にアクセスするとER図にリレーションが追加されて表示されます。
 
 ### 日本語化
 

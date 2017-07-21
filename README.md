@@ -39,12 +39,10 @@ This section explains how to add relation information based on model information
  $ cd <Rails.root.dir>
  $ schemard gen-relation > db/relation.metadata
 ```
-
 1. To load the extracted relationship information, execute with the following command option.
 ```
  $ schemard -i <path/to/schema.rb> -f db/relation.metadata
 ```
-
 1. When accessing `http://localhost:10080` in the Web browser, relations are added to the ERD.
 
 ### Localization
@@ -54,4 +52,3 @@ This section explains how to add relation information based on model information
 ### Sub Command
 
 ## Configuration
-n
