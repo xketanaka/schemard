@@ -48,5 +48,9 @@ end
 
 if $0 == __FILE__
   config = SchemaRD::Configuration.new(ARGV)
-  SchemaRD::WebServer.new(config).start()
+  if config.valid?
+    SchemaRD::WebServer.new(config).start()
+  else
+    config.errors.each{|err| puts err }
+  end
 end
