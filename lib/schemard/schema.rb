@@ -1,3 +1,4 @@
+require_relative 'utils/struct_assigner'
 
 module SchemaRD
   class Schema
@@ -15,27 +16,21 @@ module SchemaRD
     end
   end
 
-  module AttributeAssigner
-    def assign(hash)
-      return self if hash.nil?
-      self.members.each do |key|
-        value = hash[key] || hash[key.to_sym]
-        self[key] = value if value
-       end
-    end
-  end
-
   class Table < Struct.new(*%i(relations columns indexes name localized_name comment position))
-    include AttributeAssigner
+    include SchemaRD::Utils::StructAssigner
     def initialize(hash = nil)
       self.relations = []
       self.columns = []
       self.indexes = []
-      self.position = { "left" => 5, "top" => 100 }
+      self.position = { "left" => 0, "top" => 0 }
       self.assign(hash)
     end
     def relations_as_parent
       self.relations.select{|r| r.parent_table == self }
+    end
+    def relations_as_child(schema)
+      schema.tables.reject{|tbl| tbl == self }
+        .map(&:relations).flatten.select{|r| r.child_table == self }
     end
     def relation_to(table_name)
       self.relations.find{|r| r.child_table.name == table_name }
@@ -43,10 +38,13 @@ module SchemaRD
     def display_name
       self.localized_name || self.name
     end
+    def default_position?
+      self.position["left"] == 0 && self.position["top"] == 0
+    end
   end
 
   class TableRelation < Struct.new(*%i(parent_table child_table parent_cardinality child_cardinality))
-    include AttributeAssigner
+    include SchemaRD::Utils::StructAssigner
     def initialize(hash = nil)
       self.parent_cardinality = "1"
       self.child_cardinality = "N"
@@ -56,7 +54,7 @@ module SchemaRD
 
   class TableColumn < Struct.new(
     *%i(name localized_name type null default limit precision scale comment))
-    include AttributeAssigner
+    include SchemaRD::Utils::StructAssigner
     def initialize(hash = nil)
       self.assign(hash)
     end
@@ -65,7 +63,7 @@ module SchemaRD
     end
   end
   class TableIndex < Struct.new(*%i(name columns unique))
-    include AttributeAssigner
+    include SchemaRD::Utils::StructAssigner
     def initialize(hash = nil)
       self.columns = []
       self.assign(hash)

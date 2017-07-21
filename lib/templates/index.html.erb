@@ -24,6 +24,9 @@ div.table {
   -webkit-user-select: none; /* Safari、Chrome */
   -ms-user-select: none; /* overIE10 */
 }
+div.default-position {
+  position: relative !important;
+}
 .table div { padding: 2px 10px }
 .table div.title {
   background-color: #4078c0;
@@ -34,8 +37,14 @@ div.table {
   display: inline-block;
   padding: 4px;
   color: #4078c0;
+  position: absolute;
+  top: 5px;
+  left: 10px;
 }
-.editing { border: solid 3px #b0c4de !important; margin: 0 !important; }
+.editing { border: solid 3px #b0c4de !important; margin: 0 !important; cursor: -webkit-grab; cursor: -moz-grab; }
+.dragging { cursor: -webkit-grabbing !important; cursor: -moz-grabbing !important; }
+.editing div.title { cursor: -webkit-grab; cursor: -moz-grab; }
+.dragging div.title { cursor: -webkit-grabbing !important; cursor: -moz-grabbing !important; }
 .relation-line, .relation-edge {
   position: absolute;
   z-index: 0;
@@ -55,7 +64,7 @@ div.table {
 <body>
 <label class="editable" ><input type="checkbox" ><%= locale.t("views.edit_checkbox_label") %></label>
 <%- schema.tables.each do |t| -%>
-  <div class="table" data-table-name="<%= t.name %>"
+  <div class="table<% if t.default_position? %> default-position<% end %>" data-table-name="<%= t.name %>"
        data-pos-left="<%= t.position["left"]%>" data-pos-top="<%= t.position["top"] %>"
        data-relation-to="<%= t.relations_as_parent.map{|r| r.child_table.name }.join(',') %>"
        data-relation-cardinality="<%=
