@@ -37,11 +37,13 @@ ER図にリレーションを追加するには、別途リレーション情報
  $ cd <Rails.root.dir>
  $ schemard gen-relation > db/relation.metadata
 ```
-1. 抽出したリレーション情報を読み込ませるには以下のようにオプションを指定して実行します。
+
+2. 抽出したリレーション情報を読み込ませるには以下のようにオプションを指定して実行します。
 ```
  $ schemard -i <path/to/schema.rb> -f db/relation.metadata
 ```
-1. Webブラウザで`http://localhost:10080`にアクセスするとER図にリレーションが追加されて表示されます。
+
+3. Webブラウザで`http://localhost:10080`にアクセスするとER図にリレーションが追加されて表示されます。
 
 ### 日本語化
 
@@ -63,12 +65,12 @@ ja:
         <column_name>: <column_name>
 ```
 
-1. 以下のようにオプションで辞書ファイルを指定して実行します。
+2. 以下のようにオプションで辞書ファイルを指定して実行します。
 ```
  $ schemard -i <path/to/schema.rb> -f db/relation.metadata -f config/locale/ja.yml
 ```
 
-1. Webブラウザで `http://localhost:10080` にアクセスするとテーブル名・カラム名が辞書に従って変換されて表示されます。
+3. Webブラウザで `http://localhost:10080` にアクセスするとテーブル名・カラム名が辞書に従って変換されて表示されます。
 
 ## オプション
 
