@@ -1,0 +1,14 @@
+#!/usr/bin/env ruby
+
+if %w(generate-relations generate-relation gen-relations gen-relation).include?(ARGV[0])
+  require 'schemard/relation_generator'
+  generator = SchemaRD::RelationGenerator.new(ARGV.slice(1..-1))
+  generator.run if generator.ready?
+elsif %w(generate-translations generate-translation gen-translations gen-translation).include?(ARGV[0])
+  # TODO:
+  # YARD to Yaml
+else
+  require 'schemard'
+  config = SchemaRD::Configuration.new(ARGV)
+  SchemaRD::WebServer.new(config).start()
+end
