@@ -16,7 +16,7 @@ module SchemaRD
 
     def index(req, res)
       locale = localizer(req)
-      schema = SchemaRD::SchemaParser.new(config.input_file).parse()
+      schema = SchemaRD::SchemaParser.new(config.input_file).parse(with_comment: config.parse_db_comment?)
       SchemaRD::Metadata.load(config: self.config, lang: locale.lang, schema: schema)
       send(req, res, render("index.html.erb", binding))
     end
@@ -27,7 +27,8 @@ module SchemaRD
       unless match
         res.status = 404
       else
-        schema = SchemaRD::SchemaParser.new(config.input_file).parse()
+        schema = SchemaRD::SchemaParser.new(config.input_file).parse(with_comment: config.parse_db_comment?)
+        SchemaRD::Metadata.load(config: self.config, lang: locale.lang, schema: schema)
         table_name = match[1]
         send(req, res, render("show.html.erb", binding))
       end
@@ -85,7 +86,7 @@ module SchemaRD
     output_file: "schema.metadata",
     metadata_files: [],
     rdoc_enabled: false,
-    db_comment_enabled: false,
+    parse_db_comment_as: "ignore",
     log_output: STDOUT,
     webserver_host: "127.0.0.1",
     webserver_port: "10080"
@@ -103,8 +104,8 @@ module SchemaRD
         opt.on('-i VAL', '--input-file=VAL') {|v| hash[:input_file] = v }
         opt.on('-o VAL', '--output-file=VAL') {|v| hash[:output_file] = v }
         opt.on('-f VAL', '-m VAL', '--metadata-file=VAL') {|v| hash[:metadata_files] << v }
-        opt.on('--[no-]rdoc') {|v| hash[:rdoc_enabled] = v }
-        opt.on('--[no-]db-comment') {|v| hash[:db_comment_enabled] = v }
+        opt.on('--rdoc', '--rdoc-enabled') { hash[:rdoc_enabled] = true }
+        opt.on('--parse-db-comment-as=VAL') {|v| hash[:parse_db_comment_as] = v }
         opt.on('-s', '--silent', '--no-log-output') {|v| hash[:log_output] = File.open(File::NULL, 'w') }
         opt.on('-h VAL', '--host=VAL') {|v| hash[:webserver_host] = v }
         opt.on('-p VAL', '--port=VAL') {|v| hash[:webserver_port] = v }
@@ -112,6 +113,10 @@ module SchemaRD
         opt.parse(argv)
       end
       self.assign(hash)
+    end
+
+    def parse_db_comment?
+      self.parse_db_comment_as != "ignore"
     end
 
     def valid?
@@ -126,6 +131,9 @@ module SchemaRD
         unless File.readable?(metadata_file)
           self.errors << "MetadataFile: \"#{metadata_file}\" is not readable!"
         end
+      end
+      unless %w(ignore name localized_name description custom).include?(self.parse_db_comment_as)
+        self.errors << "ParseDBCommentAs: \"#{self.parse_db_comment_as}\" is not allowed!"
       end
       if self.log_output.is_a?(String)
         self.errors << "LogFile: \"#{self.log_output}\" is not writable!"
