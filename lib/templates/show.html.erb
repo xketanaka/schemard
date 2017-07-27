@@ -82,7 +82,7 @@ div.wrap { margin-bottom: 30px; }
           <%- end -%>
           <tr>
             <th> <%= locale.t("views.parent_tables") %> </th>
-            <td> <%= table.relations_as_child(schema).map(&:parent_table).map do |t|
+            <td> <%= table.relations_as_child.map(&:parent_table).map do |t|
                        "<a data-link-url='#{t.name}' >#{t.display_name}</a>"
                      end.join(", ") -%> </td>
           </tr>
@@ -98,7 +98,7 @@ div.wrap { margin-bottom: 30px; }
 
     <section>
       <h3><%= locale.t("views.description") %></h3>
-      <pre><%= table.comment %></pre>
+      <pre><%= table.description %></pre>
     </section>
 
     <section>
@@ -126,7 +126,7 @@ div.wrap { margin-bottom: 30px; }
             <td> <%= col.type == "decimal" ? "#{col.precision},#{col.scale}" : col.limit %> </td>
             <td> <%= col.null || "false" %> </td>
             <td> <%= col.default || "NULL" %> </td>
-            <td> <%= col.comment %> </td>
+            <td> <%= col.description %> </td>
           </tr>
           <%- end -%>
         </tbody>

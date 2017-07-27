@@ -2,8 +2,10 @@ require_relative 'utils/struct_assigner'
 
 module SchemaRD
   class Schema
+    attr_reader :relations
     def initialize
       @tables = {}
+      @relations = []
     end
     def tables
       @tables.values
@@ -13,27 +15,32 @@ module SchemaRD
     end
     def add_table(name, table_object)
       @tables[name.to_s] = table_object
+      table_object.set_schema(self)
+    end
+    def add_relation(relation)
+      @relations << relation
     end
   end
 
-  class Table < Struct.new(*%i(relations columns indexes name localized_name comment position))
+  class Table < Struct.new(*%i(columns indexes name localized_name description position parsed_db_comment))
     include SchemaRD::Utils::StructAssigner
     def initialize(hash = nil)
-      self.relations = []
       self.columns = []
       self.indexes = []
       self.position = { "left" => 0, "top" => 0 }
       self.assign(hash)
     end
-    def relations_as_parent
-      self.relations.select{|r| r.parent_table == self }
+    def set_schema(schema)
+      @schema = schema
     end
-    def relations_as_child(schema)
-      schema.tables.reject{|tbl| tbl == self }
-        .map(&:relations).flatten.select{|r| r.child_table == self }
+    def relations_as_parent
+      @schema.relations.select{|r| r.parent_table == self }
+    end
+    def relations_as_child
+      @schema.relations.select{|r| r.child_table == self }
     end
     def relation_to(table_name)
-      self.relations.find{|r| r.child_table.name == table_name }
+      self.relations_as_parent.find{|r| r.child_table.name == table_name }
     end
     def display_name
       self.localized_name || self.name
@@ -53,7 +60,7 @@ module SchemaRD
   end
 
   class TableColumn < Struct.new(
-    *%i(name localized_name type null default limit precision scale comment))
+    *%i(name localized_name type null default limit precision scale description parsed_db_comment))
     include SchemaRD::Utils::StructAssigner
     def initialize(hash = nil)
       self.assign(hash)
