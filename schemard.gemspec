@@ -22,6 +22,8 @@ Gem::Specification.new do |spec|
   end
   spec.executables   = ["schemard"]
   spec.require_paths = ["lib"]
+  # This gem will work with 2.0 or greater...
+  spec.required_ruby_version = '>= 2.0'
 
   spec.add_development_dependency "bundler", "~> 1.0"
   spec.add_development_dependency "rake", "~> 0.9"

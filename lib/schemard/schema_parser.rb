@@ -26,7 +26,8 @@ module SchemaRD
           CODE
         end
         alias_method :numeric, :decimal
-        def initialize(table, with_comment:)
+        # "with_comment" must be assigned, but ruby2.0 needs default value.
+        def initialize(table, with_comment: false)
           @table = table
           @parse_db_comment = with_comment
         end
@@ -48,7 +49,8 @@ module SchemaRD
           @table.indexes << SchemaRD::TableIndex.new(options.merge({ columns: column_name }))
         end
       end
-      def initialize(schema, with_comment:)
+      # "with_comment" must be assigned, but ruby2.0 needs default value.
+      def initialize(schema, with_comment: false)
         @schema = schema
         @parse_db_comment = with_comment
       end

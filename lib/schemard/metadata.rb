@@ -4,7 +4,8 @@ require_relative 'rdoc_parser'
 
 module SchemaRD
   module Metadata
-    def self.load(config:, lang:, schema:)
+    # "config", "lang", "schema" must be assigned, but ruby2.0 needs default value.
+    def self.load(config: nil, lang: "ja", schema: nil)
       metadata = Parser.new(config.output_file, *config.metadata_files).parse()
       localizer = SchemaRD::Utils::SchemaLocalizer.new(lang, metadata)
       # localized_name を設定
