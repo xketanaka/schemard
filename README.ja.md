@@ -14,7 +14,7 @@ SchemaRD は、Railsアプリケーションで利用する schema.rb を元にE
 
 実行:
 ```
- $ schemard -i <path/to/schema.rb>
+ $ schemard
 ```
 
 Webブラウザで`http://localhost:10080`にアクセスすると生成されたER図を参照できます。
@@ -24,13 +24,21 @@ Webブラウザで`http://localhost:10080`にアクセスすると生成され�
 ### レイアウト調整
 
 デフォルトで生成されるER図では、テーブルは無作為にレイアウトされています。  
-図の左上の「テーブルの位置を編集」をチェックし、テーブルをドラッグすることで位置を調整することができます。
+例として、RubyOnRailsチュートリアル( https://railstutorial.jp/ )のschema.rbより生成したER図を示します。
+
+<img src="https://raw.githubusercontent.com/wiki/xketanaka/schemard/images/init_layout_ja.png" width="700px" >
+
+図の左上の「テーブルの位置を編集」をチェックし、テーブルをドラッグすることでテーブルの配置場所を調整することができます。
+
+<img src="https://raw.githubusercontent.com/wiki/xketanaka/schemard/images/edit_layout_ja.png" width="700px" >
+
 
 ### リレーション追加
 
 デフォルトで生成されるER図には、テーブル同士のリレーション情報がありません。  
 ER図にリレーションを追加するには、別途リレーション情報を与える必要があります。  
-リレーション情報を与える方法はいくつかありますが、ここではRailsアプリケーションのモデル情報を元にリレーション情報を追加する手順を説明します。
+
+リレーション情報を与える方法はいくつかありますが、ここではRailsアプリケーションのモデル情報を元にリレーション情報を追加する手順を説明します。先程と同様に、RubyOnRailsチュートリアルのソースコードを用いて説明します。
 
 1. 以下のコマンドでリレーション情報を抽出します。ここでは`db/relatoin.metadata`に出力します。
 ```
@@ -38,12 +46,32 @@ ER図にリレーションを追加するには、別途リレーション情報
  $ schemard gen-relation > db/relation.metadata
 ```
 
-2. 抽出したリレーション情報を読み込ませるには以下のようにオプションを指定して実行します。
+2. `db/relatoin.metadata`には以下の内容が出力されます。
+```
+---
+tables:
+  users:
+    has_many:
+    - microposts
+    - relationships
+    - relationships
+  relationships:
+    belongs_to:
+    - users
+    - users
+  microposts:
+    belongs_to:
+    - users
+```
+
+3. 抽出したリレーション情報を読み込ませるには以下のようにオプションを指定して実行します。
 ```
  $ schemard -i <path/to/schema.rb> -f db/relation.metadata
 ```
 
-3. Webブラウザで`http://localhost:10080`にアクセスするとER図にリレーションが追加されて表示されます。
+4. Webブラウザで`http://localhost:10080`にアクセスするとER図にリレーションが追加されて表示されます。
+
+<img src="https://raw.githubusercontent.com/wiki/xketanaka/schemard/images/relation_added.png" width="700px" >
 
 ### 日本語化
 
@@ -67,10 +95,10 @@ ja:
 
 2. 以下のようにオプションで辞書ファイルを指定して実行します。
 ```
- $ schemard -i <path/to/schema.rb> -f db/relation.metadata -f config/locale/ja.yml
+ $ schemard -f db/relation.metadata -f config/locale/ja.yml
 ```
 
-3. Webブラウザで `http://localhost:10080` にアクセスするとテーブル名・カラム名が辞書に従って変換されて表示されます。
+3. Webブラウザで `http://localhost:10080` にアクセスするとテーブル名・カラム名が辞書ファイルに記述された表示名で表示されます。
 
 ## オプション
 
