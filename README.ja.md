@@ -66,7 +66,7 @@ tables:
 
 3. 抽出したリレーション情報を読み込ませるには以下のようにオプションを指定して実行します。
 ```
- $ schemard -i <path/to/schema.rb> -f db/relation.metadata
+ $ schemard -f db/relation.metadata
 ```
 
 4. Webブラウザで`http://localhost:10080`にアクセスするとER図にリレーションが追加されて表示されます。
