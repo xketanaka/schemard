@@ -33,10 +33,29 @@ module SchemaRD
       .each_with_object({}) do |model, hash|
         hash[model.table_name] = {}
 
-        relation_selector = ->(klass){ model._reflections.values.select{|r| r.is_a?(klass) } }
-        has_one_rels = relation_selector.call(ActiveRecord::Reflection::HasOneReflection)
-        has_many_rels = relation_selector.call(ActiveRecord::Reflection::HasManyReflection)
-        belongs_to_rels = relation_selector.call(ActiveRecord::Reflection::BelongsToReflection)
+        relation_selector = ->(type){
+          # Over ActiveRecord 4.2.7
+          if defined?(ActiveRecord::Reflection::HasOneReflection)
+            klasses = {
+              has_one: ActiveRecord::Reflection::HasOneReflection,
+              has_many: ActiveRecord::Reflection::HasManyReflection,
+              belongs_to: ActiveRecord::Reflection::BelongsToReflection
+            }
+            model._reflections.values.select{|r| r.is_a?(klasses[type]) }
+          else
+            klasses = {
+              has_one: ActiveRecord::Associations::HasOneAssociation,
+              has_many: ActiveRecord::Associations::HasManyAssociation,
+              belongs_to: ActiveRecord::Associations::BelongsToAssociation
+            }
+            model.reflections.values
+            .select{|r| r.is_a?(ActiveRecord::Reflection::AssociationReflection) }
+            .select{|r| r.association_class == klasses[type] }
+          end
+        }
+        has_one_rels = relation_selector.call(:has_one)
+        has_many_rels = relation_selector.call(:has_many)
+        belongs_to_rels = relation_selector.call(:belongs_to)
 
         if has_one_rels.present?
           hash[model.table_name]["has_one"] = has_one_rels.map{|r| r.klass.table_name }
