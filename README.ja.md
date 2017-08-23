@@ -106,7 +106,7 @@ ja:
 以下のコマンドラインオプションが指定可能です。
 
  * -i, --input-file ... `schema.rb`ファイルを指定します。デフォルトは`db/schema.rb`です。
- * -o, --output-file ... レイアウト情報を出力するファイルを指定します。デフォルトは schema.metadata です。
+ * -o, --output-file ... レイアウト情報を出力するファイルを指定します。デフォルトは`schema.metadata`です。
  * -f, -m, --metadata-file ... リレーション情報ファイル、翻訳辞書ファイルを指定します。デフォルトは`指定なし`です。
  * --rdoc, --rdoc-enabled ... `schema.rb`に記述しているrdocコメントからメタ情報を取得する場合に指定します。デフォルトは`指定なし`です。
  * --parse-db-comment-as ... マイグレーション情報のcommentオプションをどのように解釈するかを指定します。`name`,`ignore`が指定できます。`name`を指定するとcommentオプションで指定された値を論理名として解釈します。`ignore`を指定するとcommentオプションの値を無視します。デフォルトは`ignore`です。
