@@ -15,18 +15,24 @@ module SchemaRD
         puts "<#{rails_root}> is not Rails.root Directory, Abort!"
         puts "Usage: schemard -d <Rails.root.dir>"
       else
+        ENV["RAILS_ENV"] = "production"
         Dir.chdir(rails_root) do
           require require_path.to_s
         end
       end
     end
     def ready?
-      defined?(Rails)
+      unless defined?(Rails)
+        puts "Rails application not found."
+        return false
+      end
+      unless Rails.application.config.eager_load
+        puts "Rails.application.eager_load was set to false, abort!"
+        return false
+      end
+      true
     end
     def run
-      Dir.glob(Rails.root + "app/models/**/*")
-      .reject{|path| Dir.exist?(path) }.each{|filepath| require filepath }
-
       hash = ObjectSpace.each_object(Class)
       .select{|o| o.ancestors.include?(ActiveRecord::Base) && o != ActiveRecord::Base }
       .select{|o| o.table_name }
@@ -57,17 +63,21 @@ module SchemaRD
         has_many_rels = relation_selector.call(:has_many)
         belongs_to_rels = relation_selector.call(:belongs_to)
 
+        relations_to_table_names = ->(relations){
+          relations.map{|r| begin r.klass.table_name; rescue => e; nil; end }.compact
+        }
+
         if has_one_rels.present?
-          hash[model.table_name]["has_one"] = has_one_rels.map{|r| r.klass.table_name }
+          hash[model.table_name]["has_one"] = relations_to_table_names.call(has_one_rels)
         end
         if has_many_rels.present?
-          hash[model.table_name]["has_many"] = has_many_rels.map{|r| r.klass.table_name }
+          hash[model.table_name]["has_many"] = relations_to_table_names.call(has_many_rels)
         end
         if belongs_to_rels.present?
-          hash[model.table_name]["belongs_to"] = belongs_to_rels.map{|r| r.klass.table_name }
+          hash[model.table_name]["belongs_to"] = relations_to_table_names.call(belongs_to_rels)
         end
       end
-      puts YAML.dump({ "tables" => hash })
+      puts YAML.dump({ "tables" => hash.reject{|key,val| val.empty? } })
     end
   end
 end
