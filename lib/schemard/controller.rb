@@ -80,7 +80,7 @@ module SchemaRD
     end
   end
 
-  CONFIG_FILE = ".schemard.config"
+  CONFIG_FILE = ".schamard.config"
   DEFAULT_CONFIG = {
     input_file: "db/schema.rb",
     output_file: "schema.metadata",
@@ -97,7 +97,7 @@ module SchemaRD
     attr_reader :errors
     def initialize(argv = nil)
       hash = {}.merge(DEFAULT_CONFIG)
-      hash.merge(YAML.load_file(CONFIG_FILE)) if File.readable?(CONFIG_FILE)
+      hash.merge!(YAML.load_file(CONFIG_FILE)) if File.readable?(CONFIG_FILE)
 
       unless argv.nil?
         opt = OptionParser.new
