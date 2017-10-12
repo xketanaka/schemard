@@ -80,7 +80,7 @@ module SchemaRD
     end
   end
 
-  CONFIG_FILE = ".schamard.config"
+  CONFIG_FILE = ".schemard.config"
   DEFAULT_CONFIG = {
     input_file: "db/schema.rb",
     output_file: "schema.metadata",
