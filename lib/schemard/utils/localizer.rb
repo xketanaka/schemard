@@ -3,9 +3,11 @@ require_relative 'singularizer'
 
 module SchemaRD::Utils
   class Localizer
-    attr_reader :lang
-    def initialize(lang)
-      @lang = self.dictionary && self.dictionary.has_key?(lang) ? lang : "en"
+    def initialize(primary_lang)
+      @primary_lang = primary_lang
+    end
+    def lang
+      @lang ||= self.dictionary && self.dictionary.has_key?(@primary_lang) ? @primary_lang : "en"
     end
     def translate(key)
       key.split(".").inject(self.dictionary[lang]) do |dict, k|
@@ -28,10 +30,12 @@ module SchemaRD::Utils
   end
 
   class SchemaLocalizer < Localizer
-    attr_reader :dictionary
     def initialize(lang, hash)
       super(lang)
-      @dictionary = hash
+      @hash = hash
+    end
+    def dictionary
+      @hash
     end
     def table_name(name)
       self.t("activerecord.models.#{name.singularize}")

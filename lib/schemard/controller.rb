@@ -15,20 +15,20 @@ module SchemaRD
     end
 
     def index(req, res)
-      locale = localizer(req)
+      locale = SchemaRD::Utils::MessageLocalizer.new(default_lang(req))
       schema = SchemaRD::SchemaParser.new(config.input_file).parse(with_comment: config.parse_db_comment?)
-      SchemaRD::Metadata.load(config: self.config, lang: locale.lang, schema: schema)
+      SchemaRD::Metadata.load(config: self.config, lang: default_lang(req), schema: schema)
       send(req, res, render("index.html.erb", binding))
     end
 
     def show(req, res)
-      locale = localizer(req)
+      locale = SchemaRD::Utils::MessageLocalizer.new(default_lang(req))
       match = req.path.match(/\/tables\/(\w+)/)
       unless match
         res.status = 404
       else
         schema = SchemaRD::SchemaParser.new(config.input_file).parse(with_comment: config.parse_db_comment?)
-        SchemaRD::Metadata.load(config: self.config, lang: locale.lang, schema: schema)
+        SchemaRD::Metadata.load(config: self.config, lang: default_lang(req), schema: schema)
         table_name = match[1]
         send(req, res, render("show.html.erb", binding))
       end
@@ -56,8 +56,8 @@ module SchemaRD
 
     private
 
-    def localizer(req)
-      SchemaRD::Utils::MessageLocalizer.new(req.accept_language[0] || "en")
+    def default_lang(req)
+      req.accept_language[0] || "en"
     end
 
     def send(req, res, body = nil)
@@ -89,7 +89,8 @@ module SchemaRD
     parse_db_comment_as: "ignore",
     log_output: STDOUT,
     webserver_host: "127.0.0.1",
-    webserver_port: "10080"
+    webserver_port: "10080",
+    show_version: false
   }
 
   class Configuration < Struct.new(*DEFAULT_CONFIG.keys)
@@ -110,6 +111,7 @@ module SchemaRD
         opt.on('-h VAL', '--host=VAL') {|v| hash[:webserver_host] = v }
         opt.on('-p VAL', '--port=VAL') {|v| hash[:webserver_port] = v }
         opt.on('-l VAL', '--log-output=VAL') {|v| hash[:log_output] = self.class.str_to_io(v) }
+        opt.on('-v', '--version') {|v| hash[:show_version] = true }
         opt.parse(argv)
       end
       self.assign(hash)
@@ -140,6 +142,9 @@ module SchemaRD
       end
       unless self.webserver_port =~ /^[0-9]+$/
         self.errors << "WebServerPort: \"#{self.webserver_port}\" is invalid!"
+      end
+      if self.show_version
+        self.errors << "schemard: version-#{SchemaRD::VERSION}"
       end
       self.errors.empty?
     end
