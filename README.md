@@ -13,7 +13,9 @@ Install:
 ```
 
 And run:
+Execute the terminal command in the root directory of the Railr application where schema.rb where you want to display the ER diagram exists.
 ```
+ $ cd <Rails.root.dir>
  $ schemard
 ```
 
