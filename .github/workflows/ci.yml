@@ -9,7 +9,7 @@ jobs:
 
     strategy:
       matrix:
-        ruby-version: [2.2.10, 2.3.8]
+        ruby-version: [2.2.10, 2.1.9]
 
     steps:
       - uses: actions/checkout@v2
