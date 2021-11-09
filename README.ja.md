@@ -13,7 +13,9 @@ SchemaRD は、Railsアプリケーションで利用する schema.rb を元にE
 ```
 
 実行:
+ER図を表示したいschema.rbが存在するRailrアプリケーションのrootディレクトリでターミナルコマンドを実行しましょう。
 ```
+ $ cd <Rails.root.dir>
  $ schemard
 ```
 
